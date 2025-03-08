@@ -3,6 +3,7 @@ coroot-grafana-dashboards
 1. Create VMrule based on .yaml file (or prometheus recording rule)
 2. Import dashbords to your grafana and integrate it with your prometheus datasource
 3. Use!
+   
 ![2025-03-0814 32 57-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/74e2b93e-39cd-46a1-91ac-b637757f569c)
 
 # Requirements:
