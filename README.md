@@ -4,7 +4,7 @@ coroot-grafana-dashboards
 2. Import dashbords to your grafana and integrate it with your prometheus datasource
 3. Use!
    
-![2025-03-0814 32 57-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/74e2b93e-39cd-46a1-91ac-b637757f569c)
+[https://www.youtube.com/watch?v=dQw4w9WgXcQ](https://www.youtube.com/watch?v=e5C6f9aSWSM)
 
 # Requirements:
 1. Coroot node agents (just it, without UI, Clickhouse, etc.) https://github.com/coroot/coroot
