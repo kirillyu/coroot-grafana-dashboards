@@ -1,11 +1,11 @@
 ---
-
 apiVersion: "operator.victoriametrics.com/v1beta1"
 kind: "VMRule"
 metadata:
   name: "victoria-metrics-k8s-stack-coroot-record"
   labels:
     app: "victoria-metrics-k8s-stack"
+    scope: shared
 spec:
   groups:
     - name: coroot-metrics
@@ -13,7 +13,7 @@ spec:
         - record: coroot:success_connections
           expr: |
             WITH (
-            base_req = group by (actual_destination, instance, target_cut, container_id, target, source,source_pod,source_service,source_namespace,source_service)
+            base_req = group by (actual_destination, instance, target_cut, container_id, target, source, source_pod, source_service, source_namespace, source_cluster_name)
             (
             label_replace(
              label_replace(
@@ -21,15 +21,16 @@ spec:
                label_replace(
                 label_replace(
                  label_replace(
-                  max_over_time(container_net_tcp_active_connections{container_id=~"\\/k8s.*"}[15m]),
-                                "source_pod","$1","container_id","\\/k.+?\\/.*\\/(.+?)\\/.*"),"source_namespace","$1","container_id","\\/k.+?\\/(.+?)\\/.*")
-                  or on(container_id) label_set(label_replace(max_over_time(container_net_tcp_active_connections{container_id=~"\\/system.slice.*"}[15m]),
-                                "source_pod","$1","container_id","\\/system.slice\\/(.+?)$"),"source_namespace","system.slice"), "target", "$1", "actual_destination", "(.+?)$"),
-                                "source", "$1", "instance", "(.+?)$"),"target_cut","$1","actual_destination", "(.+?):.*"),
-                                "source_service","$1","container_id",".*\\/(.+?)$"))
+                  label_replace(
+                   max_over_time(container_net_tcp_active_connections{container_id=~"\\/k8s.*"}[15m]),
+                                 "source_pod","$1","container_id","\\/k.+?\\/.*\\/(.+?)\\/.*"),"source_namespace","$1","container_id","\\/k.+?\\/(.+?)\\/.*")
+                   or on(container_id) label_set(label_replace(label_replace(max_over_time(container_net_tcp_active_connections{container_id=~"\\/system.slice.*"}[15m]),
+                                 "source_pod","$1","container_id","\\/system.slice\\/(.+?)$"),"source_cluster_name","$1","cluster_name","(.+)"),"source_namespace","system.slice"), "target", "$1", "actual_destination", "(.+?)$"),
+                                 "source", "$1", "instance", "(.+?)$"),"target_cut","$1","actual_destination", "(.+?):.*"),
+                                 "source_service","$1","container_id",".*\\/(.+?)$"),"source_cluster_name","$1","cluster_name","(.+)"))
                  )
-            max by (actual_destination, instance, container_id, source , source_namespace, source_pod, source_service, target, target_namespace,
-            target_pod, target_service, namespace, service, target_cut)
+            max by (actual_destination, instance, container_id, source, source_namespace, source_pod, source_service, target, target_namespace,
+            target_pod, target_service, namespace, service, target_cut, source_cluster_name)
             (
             # Обогащённая группа низходящих коннектов
             (
@@ -52,25 +53,27 @@ spec:
             (max_over_time(container_dns_requests_total[15m])) * on(domain) group_left(ip)group by (domain,ip) (label_copy( max_over_time(ip_to_fqdn[15m]),"fqdn","domain")), "domain","target_service","ip","target_cut", "ip","target_namespace", "domain", "target_pod")))
             # Базовая группа для отсутствующих namespace и service
                  or on(target)(
-                  label_copy(group by (actual_destination, instance, container_id, target, source,source_pod,source_namespace,source_service) (
+                  label_copy(group by (actual_destination, instance, container_id, target, source, source_pod, source_namespace, source_service, source_cluster_name) (
                    label_replace(
                     label_replace(
                      label_replace(
                       label_replace(
                        label_replace(
-                        max_over_time(container_net_tcp_active_connections{container_id=~"\\/k8s.*"}[15m]),"source_pod","$1","container_id","\\/k.+?\\/.*\\/(.+?)\\/.*"),
-                                      "source_namespace","$1","container_id","\\/k.+?\\/(.+?)\\/.*")
-                        or on(container_id)
-                         label_set(
-                          label_replace(
-                           max_over_time(container_net_tcp_active_connections{container_id=~"\\/system.slice.*"}[15m]),
-                                         "source_pod","$1","container_id","\\/system.slice\\/(.+?)$"), "source_namespace","system.slice" ),"target", "$1", "actual_destination", "(.+?)$"),"source", "$1", "instance", "(.+?):.*" ),
-                                         "source_service","$1","container_id",".*\\/(.+?)$" )),
-                                         "target","target_namespace","actual_destination","target_service","actual_destination","target_pod"))))
+                        label_replace(
+                         max_over_time(container_net_tcp_active_connections{container_id=~"\\/k8s.*"}[15m]),"source_pod","$1","container_id","\\/k.+?\\/.*\\/(.+?)\\/.*"),
+                                       "source_namespace","$1","container_id","\\/k.+?\\/(.+?)\\/.*")
+                         or on(container_id)
+                          label_set(
+                           label_replace(
+                            label_replace(
+                             max_over_time(container_net_tcp_active_connections{container_id=~"\\/system.slice.*"}[15m]),
+                                          "source_pod","$1","container_id","\\/system.slice\\/(.+?)$"),"source_cluster_name","$1","cluster_name","(.+)"), "source_namespace","system.slice" ),"target", "$1", "actual_destination", "(.+?)$"),"source", "$1", "instance", "(.+?):.*" ),
+                                          "source_service","$1","container_id",".*\\/(.+?)$" ),"source_cluster_name","$1","cluster_name","(.+)")),
+                                          "target","target_namespace","actual_destination","target_service","actual_destination","target_pod"))))
         - record: coroot:http_requests
           expr: |
             WITH (
-            base_req = group by (actual_destination, instance, target_cut, container_id, target, source,source_pod,source_service,source_namespace,source_service)
+            base_req = group by (actual_destination, instance, target_cut, container_id, target, source, source_pod, source_service, source_namespace, source_cluster_name)
             (
             label_replace(
              label_replace(
@@ -78,15 +81,16 @@ spec:
                label_replace(
                 label_replace(
                  label_replace(
-                  max_over_time(container_http_requests_total{container_id=~"\\/k8s.*"}[15m]),
-                                "source_pod","$1","container_id","\\/k.+?\\/.*\\/(.+?)\\/.*"),"source_namespace","$1","container_id","\\/k.+?\\/(.+?)\\/.*")
-                  or on(container_id) label_set(label_replace(max_over_time(container_http_requests_total{container_id=~"\\/system.slice.*"}[15m]),
-                                "source_pod","$1","container_id","\\/system.slice\\/(.+?)$"),"source_namespace","system.slice"), "target", "$1", "actual_destination", "(.+?)$"),
-                                "source", "$1", "instance", "(.+?)$"),"target_cut","$1","actual_destination", "(.+?):.*"),
-                                "source_service","$1","container_id",".*\\/(.+?)$"))
+                  label_replace(
+                   max_over_time(container_http_requests_total{container_id=~"\\/k8s.*"}[15m]),
+                                 "source_pod","$1","container_id","\\/k.+?\\/.*\\/(.+?)\\/.*"),"source_namespace","$1","container_id","\\/k.+?\\/(.+?)\\/.*")
+                   or on(container_id) label_set(label_replace(label_replace(max_over_time(container_http_requests_total{container_id=~"\\/system.slice.*"}[15m]),
+                                 "source_pod","$1","container_id","\\/system.slice\\/(.+?)$"),"source_cluster_name","$1","cluster_name","(.+)"),"source_namespace","system.slice"), "target", "$1", "actual_destination", "(.+?)$"),
+                                 "source", "$1", "instance", "(.+?)$"),"target_cut","$1","actual_destination", "(.+?):.*"),
+                                 "source_service","$1","container_id",".*\\/(.+?)$"),"source_cluster_name","$1","cluster_name","(.+)"))
                  )
-            max by (actual_destination, instance, container_id, source , source_namespace, source_pod, source_service, target, target_namespace,
-            target_pod, target_service, namespace, service, target_cut)
+            max by (actual_destination, instance, container_id, source, source_namespace, source_pod, source_service, target, target_namespace,
+            target_pod, target_service, namespace, service, target_cut, source_cluster_name)
             (
             # Обогащённая группа низходящих коннектов
             (
@@ -109,20 +113,98 @@ spec:
             (max_over_time(container_dns_requests_total[15m])) * on(domain) group_left(ip)group by (domain,ip) (label_copy(max_over_time(ip_to_fqdn[15m]),"fqdn","domain")), "domain","target_service","ip","target_cut", "ip","target_namespace", "domain", "target_pod")))
             # Базовая группа для отсутствующих namespace и service
                  or on(source,target)(
-                  label_copy(group by (actual_destination, instance, container_id, target, source,source_pod,source_namespace,source_service) (
+                  label_copy(group by (actual_destination, instance, container_id, target, source, source_pod, source_namespace, source_service, source_cluster_name) (
                    label_replace(
                     label_replace(
                      label_replace(
                       label_replace(
                        label_replace(
-                        max_over_time(container_http_requests_total{container_id=~"\\/k8s.*"}[15m]),"source_pod","$1","container_id","\\/k.+?\\/.*\\/(.+?)\\/.*"),
-                                      "source_namespace","$1","container_id","\\/k.+?\\/(.+?)\\/.*")
-                        or on(container_id)
-                         label_set(
-                          label_replace(
-                           max_over_time(container_http_requests_total{container_id=~"\\/system.slice.*"}[15m]),
-                                         "source_pod","$1","container_id","\\/system.slice\\/(.+?)$"), "source_namespace","system.slice" ),"target", "$1", "actual_destination", "(.+?)$"),"source", "$1", "instance", "(.+?)$" ),
-                                         "source_service","$1","container_id",".*\\/(.+?)$" )),
-                                         "target","target_namespace","actual_destination","target_service","actual_destination","target_pod"))))
-
-
+                        label_replace(
+                         max_over_time(container_http_requests_total{container_id=~"\\/k8s.*"}[15m]),"source_pod","$1","container_id","\\/k.+?\\/.*\\/(.+?)\\/.*"),
+                                       "source_namespace","$1","container_id","\\/k.+?\\/(.+?)\\/.*")
+                         or on(container_id)
+                          label_set(
+                           label_replace(
+                            label_replace(
+                             max_over_time(container_http_requests_total{container_id=~"\\/system.slice.*"}[15m]),
+                                          "source_pod","$1","container_id","\\/system.slice\\/(.+?)$"),"source_cluster_name","$1","cluster_name","(.+)"), "source_namespace","system.slice" ),"target", "$1", "actual_destination", "(.+?)$"),"source", "$1", "instance", "(.+?)$" ),
+                                          "source_service","$1","container_id",".*\\/(.+?)$" ),"source_cluster_name","$1","cluster_name","(.+)")),
+                                          "target","target_namespace","actual_destination","target_service","actual_destination","target_pod"))))
+        - record: coroot:statefuls
+          expr: |
+            WITH (
+              postgres = label_set(rate(container_postgres_queries_total[5m]), "target_type", "postgres"),
+              redis = label_set(rate(container_redis_queries_total[5m]), "target_type", "redis"),
+              mongo = label_set(rate(container_mongo_queries_total[5m]), "target_type", "mongo"),
+              cassandra = label_set(rate(container_cassandra_queries_total[5m]), "target_type", "cassandra"),
+              clickhouse = label_set(rate(container_clickhouse_requests_total[5m]), "target_type", "clickhouse"),
+              kafka = label_set(rate(container_kafka_requests_total[5m]), "target_type", "kafka"),
+              mysql = label_set(rate(container_mysql_queries_total[5m]), "target_type", "mysql"),
+              memcached = label_set(rate(container_memcached_queries_total[5m]), "target_type", "memcached"),
+              all_statefuls = postgres or redis or mongo or cassandra or clickhouse or kafka or mysql or memcached,
+              source_info = group by (container_id, source, source_pod, source_service, source_namespace, source_cluster_name, actual_destination) (
+                label_replace(
+                  label_replace(
+                    label_replace(
+                      label_replace(
+                        max_over_time(container_net_tcp_active_connections[15m]),
+                        "source_pod", "$1", "container_id", "/k8s/[^/]+/([^/]+)/.*"
+                      ),
+                      "source_namespace", "$1", "container_id", "/k8s/([^/]+)/[^/]+/.*"
+                    ),
+                    "source_service", "$1", "source_pod", "^(.+?)(?:-[0-9a-z]{5,10})?$"
+                  ),
+                  "source_cluster_name", "$1", "cluster_name", "(.*)"
+                )
+                or on(container_id)
+                label_set(
+                  label_replace(
+                    label_replace(
+                      max_over_time(container_net_tcp_active_connections[15m]),
+                      "source_pod", "$1", "container_id", "/system.slice/(.+?)$"
+                    ),
+                    "source_cluster_name", "$1", "cluster_name", "(.*)"
+                  ),
+                  "source_namespace", "system.slice"
+                )
+              ),
+              target_info = group by (target, target_namespace, target_pod, target_service, actual_destination) (
+                label_replace(
+                  label_replace(
+                    label_replace(
+                      label_replace(
+                        max_over_time(container_net_tcp_listen_info[15m]),
+                        "actual_destination", "$1", "listen_addr", "(.*)"
+                      ),
+                      "target_namespace", "$1", "container_id", "/k8s/([^/]+)/[^/]+/.*"
+                    ),
+                    "target_pod", "$1", "container_id", "/k8s/[^/]+/([^/]+)/.*"
+                  ),
+                  "target_service", "$1", "target_pod", "^(.+?)(?:-[0-9a-z]{5,10})?$"
+                )
+                or on(container_id)
+                label_set(
+                  label_replace(
+                    max_over_time(container_net_tcp_listen_info[15m]),
+                    "target_service", "$1", "container_id", ".*/(.+?)$"
+                  ),
+                  "target_namespace", "system.slice"
+                )
+              )
+            )
+            max by (source, source_pod, source_service, source_namespace, source_cluster_name, target, target_service, target_namespace, target_pod, target_type, actual_destination) (
+              (
+                label_set(
+                  all_statefuls
+                  * on(container_id, actual_destination) group_left(source_pod, source_service, source_namespace, source_cluster_name, actual_destination) (source_info)
+                  * on(actual_destination) group_left(target_namespace, target_service, target_pod) (target_info)
+                )
+              )
+              or on (container_id, actual_destination) (
+                label_set(
+                  all_statefuls
+                  * on(container_id, actual_destination) group_left(source_pod, source_service, source_namespace, source_cluster_name, actual_destination) (source_info),
+                  "target_namespace", "empty", "target_service", "empty", "target_pod", "empty"
+                )
+              )
+            )
