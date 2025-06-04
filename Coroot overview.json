@@ -1,8 +1,8 @@
 {
   "__inputs": [
     {
-      "name": "DS_VICTORIA-P01-PRODUCTION",
-      "label": "Victoria-p01-production",
+      "name": "DS_VICTORIA-CROC-COMP.GOODS.LOCAL",
+      "label": "Victoria-croc-comp.goods.local",
       "description": "",
       "type": "datasource",
       "pluginId": "prometheus",
@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "11.4.0"
+      "version": "11.4.4+security-01"
     },
     {
       "type": "datasource",
@@ -27,12 +27,6 @@
       "type": "panel",
       "id": "table",
       "name": "Table",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "text",
-      "name": "Text",
       "version": ""
     }
   ],
@@ -58,27 +52,6 @@
   "id": null,
   "links": [],
   "panels": [
-    {
-      "gridPos": {
-        "h": 5,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 2,
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "# todo\n\n1. Instances (tcp listen addr)\n2. Upstreams\n3. mem leak\n4. error % неправильный он на исходящие, как видимо и все остально по ххтп",
-        "mode": "markdown"
-      },
-      "pluginVersion": "11.4.0",
-      "title": "Panel Title",
-      "type": "text"
-    },
     {
       "datasource": {
         "type": "prometheus",
@@ -143,7 +116,7 @@
                   {
                     "targetBlank": true,
                     "title": "View namespace based detailed information",
-                    "url": " ./d/fbf5b9d8-b564-4636-86c8-8da5f2ef8bb1/coroot-namespace?orgId=1&var-Datasource=UZm8s2UGz&var-namespace=${__data.fields.namespace}&var-service=All&${__url_time_range}"
+                    "url": "/d/fbf5b9d8-b564-4636-86c8-8da5f2ef8bb1/coroot-namespace?orgId=1&var-Datasource=UZm8s2UGz&var-namespace=${__data.fields.namespace}&var-service=All&${__url_time_range}"
                   }
                 ]
               }
@@ -165,7 +138,7 @@
                   {
                     "targetBlank": true,
                     "title": "View namespace and service based detailed information",
-                    "url": " ./d/fbf5b9d8-b564-4636-86c8-8da5f2ef8bb1/coroot-namespace?orgId=1&var-Datasource=UZm8s2UGz&var-namespace=${__data.fields.namespace}&var-service=${__data.fields.service}&${__url_time_range}"
+                    "url": "/d/fbf5b9d8-b564-4636-86c8-8da5f2ef8bb1/coroot-namespace?orgId=1&var-Datasource=UZm8s2UGz&var-namespace=${__data.fields.namespace}&var-service=${__data.fields.service}&${__url_time_range}"
                   }
                 ]
               }
@@ -642,7 +615,7 @@
         "h": 23,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 0
       },
       "id": 1,
       "options": {
@@ -660,20 +633,20 @@
         "sortBy": [
           {
             "desc": true,
-            "displayName": "Response time 95%%"
+            "displayName": "Retransmits"
           }
         ]
       },
-      "pluginVersion": "11.4.0",
+      "pluginVersion": "11.4.4+security-01",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+            "uid": "${DS_VICTORIA-CROC-COMP.GOODS.LOCAL}"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "group by (container_id,namespace,service) (label_replace(label_replace(label_set(container_restarts_total{container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?\\\\/$service$\"},\"namespace\",\"system.slice\"),\"namespace\",\"$1\",\"container_id\",\"\\\\/.+?\\\\/(.+?)\\\\/.*\"),\"service\",\"$1\",\"container_id\",\".*\\\\/(.+?)$\"))\n#group by (container_id,application_type) (container_application_type{container_id=~\".+?calico-node$\"})",
+          "expr": "group by (container_id,namespace,service) (label_replace(label_replace(label_set(container_restarts_total{container_id=~\".+?$namespace\\\\/.+?$\", cluster_name=~\"$cluster\", container_id=~\".+?\\\\/$service$\"},\"namespace\",\"system.slice\"),\"namespace\",\"$1\",\"container_id\",\"\\\\/.+?\\\\/(.+?)\\\\/.*\"),\"service\",\"$1\",\"container_id\",\".*\\\\/(.+?)$\"))\n#group by (container_id,application_type) (container_application_type{container_id=~\".+?calico-node$\"})",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -688,7 +661,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "group by (container_id,application_type) (container_application_type{container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?\\\\/$service$\"})\n#group by (container_id,application_type) (container_application_type{container_id=~\".+?calico-node$\"})",
+          "expr": "group by (container_id,application_type) (container_application_type{container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?\\\\/$service$\", cluster_name=~\"$cluster\"})\n#group by (container_id,application_type) (container_application_type{container_id=~\".+?calico-node$\"})",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -699,11 +672,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+            "uid": "${DS_VICTORIA-CROC-COMP.GOODS.LOCAL}"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "#range_sum(increase(sum by (container_id) (container_http_requests_total{ status!=\"200\",container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"})[1m])[$__range])/(range_sum(increase(sum by (container_id) (container_http_requests_total{status!=\"200\",container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"})[1m])[$__range])+range_sum(increase(sum by (container_id) (container_http_requests_total{ status=\"200\",container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"})[1m])[$__range]) ) \nWITH (\n  metric = max by (source, actual_destination,status) (\n    label_replace(\n      sum by (container_id, actual_destination) (rate(container_http_requests_total{container_id=~\"\\\\/k8s.*\", status!~\"2..\"})[1m0s])/ on(container_id, actual_destination) sum by (container_id, actual_destination) (rate(container_http_requests_total{container_id=~\"\\\\/k8s.*\"})[1m0s]),\n      \"source\", \"$1\", \"container_id\", \"\\\\/k.+?\\\\/.*\\\\/(.+?)\\\\/.*\"\n    ) or label_replace(\n     sum by (container_id, actual_destination) ( rate(container_http_requests_total{container_id=~\"\\\\/system.*\", status!~\"2..\"})[1m0s])/ on(container_id, actual_destination) sum by (container_id, actual_destination) (rate(container_http_requests_total{container_id=~\"\\\\/system.*\"})[1m0s]),\n      \"source\", \"$1\", \"container_id\", \"\\\\/system.slice\\\\/(.+?)$\"\n    )\n  ), \n  edges_query =  group by(source,actual_destination,target_namespace,target_pod,target_service)(\n    label_replace(\n        label_copy(\n            #coroot:http_requests{source_namespace=~\"metricsedge\", source_service=~\".*\", target_namespace!~\"(monitoring|system\\\\.slice)\"} or on (source_pod,actual_destination) я думаю мы не смотрим вокруг выбранного нса\n            coroot:http_requests{target_namespace=~\"$namespace\", target_service=~\"$service\"},\n            \"source_pod\",\"source\"\n        ),\n        \"actual_destination\",\"$1\",\"actual_destination\",\"(.+?)\"\n    )\n  )\n)\n\nmax by (container_id) ((metric * on(source,actual_destination) group_left(target_namespace,target_pod,target_service) edges_query) * on(target_pod) group_left(container_id)\ngroup by (target_pod,container_id) (\n    label_replace(\n        container_restarts_total{container_id=~\"\\\\/k.*\"},\n        \"target_pod\", \"$1\", \"container_id\", \"\\\\/k.+?\\\\/.*\\\\/(.+?)\\\\/.*\"\n    ) or on (target_pod,container_id) label_replace(\n        container_restarts_total{container_id=~\"\\\\/system.*\"},\n        \"target_pod\", \"$1\", \"container_id\", \"\\\\/sys.+?\\\\/(.+?)$\"\n    )\n    ))",
+          "expr": "#range_sum(increase(sum by (container_id) (container_http_requests_total{ status!=\"200\",container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"})[1m])[$__range])/(range_sum(increase(sum by (container_id) (container_http_requests_total{status!=\"200\",container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"})[1m])[$__range])+range_sum(increase(sum by (container_id) (container_http_requests_total{ status=\"200\",container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"})[1m])[$__range]) ) \nWITH (\n  metric = max by (source, actual_destination,status) (\n    label_replace(\n      sum by (container_id, actual_destination) (rate(container_http_requests_total{container_id=~\"\\\\/k8s.*\", status!~\"2..\", cluster_name=~\"$cluster\"})[1m0s])/ on(container_id, actual_destination) sum by (container_id, actual_destination) (rate(container_http_requests_total{container_id=~\"\\\\/k8s.*\", cluster_name=~\"$cluster\"})[1m0s]),\n      \"source\", \"$1\", \"container_id\", \"\\\\/k.+?\\\\/.*\\\\/(.+?)\\\\/.*\"\n    ) or label_replace(\n     sum by (container_id, actual_destination) ( rate(container_http_requests_total{container_id=~\"\\\\/system.*\", status!~\"2..\", cluster_name=~\"$cluster\"})[1m0s])/ on(container_id, actual_destination) sum by (container_id, actual_destination) (rate(container_http_requests_total{container_id=~\"\\\\/system.*\", cluster_name=~\"$cluster\"})[1m0s]),\n      \"source\", \"$1\", \"container_id\", \"\\\\/system.slice\\\\/(.+?)$\"\n    )\n  ), \n  edges_query =  group by(source,actual_destination,target_namespace,target_pod,target_service)(\n    label_replace(\n        label_copy(\n            #coroot:http_requests{source_namespace=~\"metricsedge\", source_service=~\".*\", target_namespace!~\"(monitoring|system\\\\.slice)\"} or on (source_pod,actual_destination) я думаю мы не смотрим вокруг выбранного нса\n            coroot:http_requests{target_namespace=~\"$namespace\", target_service=~\"$service\"},\n            \"source_pod\",\"source\"\n        ),\n        \"actual_destination\",\"$1\",\"actual_destination\",\"(.+?)\"\n    )\n  )\n)\n\nmax by (container_id) ((metric * on(source,actual_destination) group_left(target_namespace,target_pod,target_service) edges_query) * on(target_pod) group_left(container_id)\ngroup by (target_pod,container_id) (\n    label_replace(\n        container_restarts_total{container_id=~\"\\\\/k.*\"},\n        \"target_pod\", \"$1\", \"container_id\", \"\\\\/k.+?\\\\/.*\\\\/(.+?)\\\\/.*\"\n    ) or on (target_pod,container_id) label_replace(\n        container_restarts_total{container_id=~\"\\\\/system.*\"},\n        \"target_pod\", \"$1\", \"container_id\", \"\\\\/sys.+?\\\\/(.+?)$\"\n    )\n    ))",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -718,7 +691,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "#max_over_time(histogram_quantile(0.95, sum by (le, container_id)(    rate( container_http_requests_duration_seconds_total_bucket{container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"}[$__interval]))    )[$__range])\n\nWITH (\n  metric = max by (source, actual_destination) (\n    label_replace(\n      max_over_time(histogram_quantile(0.95, sum by (le, container_id,actual_destination)(\n    rate( container_http_requests_duration_seconds_total_bucket[$__interval]))\n    )[$__range]),\n      \"source\", \"$1\", \"container_id\", \"\\\\/k.+?\\\\/.*\\\\/(.+?)\\\\/.*\"\n    ) or label_replace(\n     max_over_time(histogram_quantile(0.95, sum by (le, container_id,actual_destination)(\n    rate( container_http_requests_duration_seconds_total_bucket[$__interval]))\n    )[$__range]),\n      \"source\", \"$1\", \"container_id\", \"\\\\/system.slice\\\\/(.+?)$\"\n    )\n  ), \n  edges_query =  group by(source,actual_destination,target_namespace,target_pod,target_service)(\n    label_replace(\n        label_copy(\n            #coroot:http_requests{source_namespace=~\"metricsedge\", source_service=~\".*\", target_namespace!~\"(monitoring|system\\\\.slice)\"} or on (source_pod,actual_destination) я думаю мы не смотрим вокруг выбранного нса\n            coroot:http_requests{target_namespace=~\"$namespace\", target_service=~\"$service\"},\n            \"source_pod\",\"source\"\n        ),\n        \"actual_destination\",\"$1\",\"actual_destination\",\"(.+?)\"\n    )\n  )\n)\n\nmax by (container_id) ((metric * on(source,actual_destination) group_left(target_namespace,target_pod,target_service) edges_query) * on(target_pod) group_left(container_id)\ngroup by (target_pod,container_id) (\n    label_replace(\n        container_restarts_total{container_id=~\"\\\\/k.*\"},\n        \"target_pod\", \"$1\", \"container_id\", \"\\\\/k.+?\\\\/.*\\\\/(.+?)\\\\/.*\"\n    ) or on (target_pod,container_id) label_replace(\n        container_restarts_total{container_id=~\"\\\\/system.*\"},\n        \"target_pod\", \"$1\", \"container_id\", \"\\\\/sys.+?\\\\/(.+?)$\"\n    )\n    ))",
+          "expr": "#max_over_time(histogram_quantile(0.95, sum by (le, container_id)(    rate( container_http_requests_duration_seconds_total_bucket{container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"}[$__interval]))    )[$__range])\n\nWITH (\n  metric = max by (source, actual_destination) (\n    label_replace(\n      max_over_time(histogram_quantile(0.95, sum by (le, container_id,actual_destination)(\n    rate( container_http_requests_duration_seconds_total_bucket{cluster_name=~\"$cluster\"}[$__interval]))\n    )[$__range]),\n      \"source\", \"$1\", \"container_id\", \"\\\\/k.+?\\\\/.*\\\\/(.+?)\\\\/.*\"\n    ) or label_replace(\n     max_over_time(histogram_quantile(0.95, sum by (le, container_id,actual_destination)(\n    rate( container_http_requests_duration_seconds_total_bucket{cluster_name=~\"$cluster\"}[$__interval]))\n    )[$__range]),\n      \"source\", \"$1\", \"container_id\", \"\\\\/system.slice\\\\/(.+?)$\"\n    )\n  ), \n  edges_query =  group by(source,actual_destination,target_namespace,target_pod,target_service)(\n    label_replace(\n        label_copy(\n            #coroot:http_requests{source_namespace=~\"metricsedge\", source_service=~\".*\", target_namespace!~\"(monitoring|system\\\\.slice)\"} or on (source_pod,actual_destination) я думаю мы не смотрим вокруг выбранного нса\n            coroot:http_requests{target_namespace=~\"$namespace\", target_service=~\"$service\"},\n            \"source_pod\",\"source\"\n        ),\n        \"actual_destination\",\"$1\",\"actual_destination\",\"(.+?)\"\n    )\n  )\n)\n\nmax by (container_id) ((metric * on(source,actual_destination) group_left(target_namespace,target_pod,target_service) edges_query) * on(target_pod) group_left(container_id)\ngroup by (target_pod,container_id) (\n    label_replace(\n        container_restarts_total{container_id=~\"\\\\/k.*\"},\n        \"target_pod\", \"$1\", \"container_id\", \"\\\\/k.+?\\\\/.*\\\\/(.+?)\\\\/.*\"\n    ) or on (target_pod,container_id) label_replace(\n        container_restarts_total{container_id=~\"\\\\/system.*\"},\n        \"target_pod\", \"$1\", \"container_id\", \"\\\\/sys.+?\\\\/(.+?)$\"\n    )\n    ))",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -729,11 +702,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+            "uid": "${DS_VICTORIA-CROC-COMP.GOODS.LOCAL}"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "range_sum(increase(sum by (container_id) (container_restarts_total{ container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"})[1m])[$__range])",
+          "expr": "range_sum(increase(sum by (container_id) (container_restarts_total{ container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\", cluster_name=~\"$cluster\"})[1m])[$__range])",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -748,7 +721,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "range_max(rate(max by (container_id) (container_resources_cpu_throttled_seconds_total{ container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"})[1m])[$__range])",
+          "expr": "range_max(rate(max by (container_id) (container_resources_cpu_throttled_seconds_total{ container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\", cluster_name=~\"$cluster\"})[1m])[$__range])",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -759,11 +732,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+            "uid": "${DS_VICTORIA-CROC-COMP.GOODS.LOCAL}"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "range_sum(increase(sum by (container_id) (container_oom_kills_total{ container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"})[1m])[$__range])",
+          "expr": "range_sum(increase(sum by (container_id) (container_oom_kills_total{ container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\", cluster_name=~\"$cluster\"})[1m])[$__range])",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -778,7 +751,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "range_max(increase(max by (container_id) (container_resources_disk_delay_seconds_total{ container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"})[1m])[$__range])",
+          "expr": "range_max(increase(max by (container_id) (container_resources_disk_delay_seconds_total{ container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\", cluster_name=~\"$cluster\"})[1m])[$__range])",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -789,11 +762,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+            "uid": "${DS_VICTORIA-CROC-COMP.GOODS.LOCAL}"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "range_max(increase(max by (container_id) (container_net_latency_seconds{ container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"})[1m])[$__range])",
+          "expr": "range_max(increase(max by (container_id) (container_net_latency_seconds{ container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\", cluster_name=~\"$cluster\"})[1m])[$__range])",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -808,7 +781,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "range_max(increase(max by (container_id) (container_net_tcp_retransmits_total{ container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"})[1m])[$__range])",
+          "expr": "range_max(increase(max by (container_id) (container_net_tcp_retransmits_total{ container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\", cluster_name=~\"$cluster\"})[1m])[$__range])",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -819,11 +792,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+            "uid": "${DS_VICTORIA-CROC-COMP.GOODS.LOCAL}"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "range_sum(increase(sum by (container_id) (container_log_messages_total{level=\"error\", container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"})[1m])[$__range])/range_sum(increase(sum by (container_id) (container_log_messages_total{ container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\"})[1m])[$__range])",
+          "expr": "range_sum(increase(sum by (container_id) (container_log_messages_total{level=\"error\", container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\", cluster_name=~\"$cluster\"})[1m])[$__range])/range_sum(increase(sum by (container_id) (container_log_messages_total{ container_id=~\".+?$namespace\\\\/.+?$\", container_id=~\".+?$service$\", cluster_name=~\"$cluster\"})[1m])[$__range])",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -838,7 +811,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "range_sum(\n  sum by (container_id) \n    (\n      sum by (pod) (\n        increase(\n          container_network_advance_tcp_stats_total{namespace=~\"$namespace\", pod=~\"$service.*\",tcp_state=~\".+?drop\"}[1m]\n        )\n      ) * on(pod) group_left(container_id) \n      group by (container_id,pod) (\n        label_replace(\n          container_restarts_total{container_id=~\"\\\\/k8s\\\\/$namespace\\\\/.+?$\", container_id=~\".+?\\\\/$service$\"}\n          ,\"pod\",\"$1\",\"container_id\",\"\\\\/k8s\\\\/$namespace\\\\/(.+?)\\\\/.*\"\n        )\n      )\n    )\n  [$__range]\n)",
+          "expr": "range_sum(\n  sum by (container_id) \n    (\n      sum by (pod) (\n        increase(\n          container_network_advance_tcp_stats_total{namespace=~\"$namespace\", pod=~\"$service.*\",tcp_state=~\".+?drop\", cluster_name=~\"$cluster\"}[1m]\n        )\n      ) * on(pod) group_left(container_id) \n      group by (container_id,pod) (\n        label_replace(\n          container_restarts_total{container_id=~\"\\\\/k8s\\\\/$namespace\\\\/.+?$\", container_id=~\".+?\\\\/$service$\"}\n          ,\"pod\",\"$1\",\"container_id\",\"\\\\/k8s\\\\/$namespace\\\\/(.+?)\\\\/.*\"\n        )\n      )\n    )\n  [$__range]\n)",
           "format": "table",
           "hide": false,
           "instant": false,
@@ -1001,23 +974,43 @@
         "options": [],
         "query": "prometheus",
         "refresh": 1,
-        "regex": "",
+        "regex": "/[Vv]ictoria.*/",
         "type": "datasource"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_VICTORIA-CROC-COMP.GOODS.LOCAL}"
+        },
+        "definition": "label_values(container_restarts_total,cluster_name)",
+        "includeAll": true,
+        "multi": true,
+        "name": "cluster",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(container_restarts_total,cluster_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
       },
       {
         "allValue": ".*",
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+          "uid": "${Datasource}"
         },
-        "definition": "query_result(group by (container_id,namespace,service) (label_replace(label_replace(label_set(container_restarts_total{container_id!=\"\"},\"namespace\",\"system.slice\"),\"namespace\",\"$1\",\"container_id\",\"\\\\/.+?\\\\/(.+?)\\\\/.*\"),\"service\",\"$1\",\"container_id\",\".*\\\\/(.+?)$\")))",
+        "definition": "query_result(group by (container_id,namespace,service) (label_replace(label_replace(label_set(container_restarts_total{container_id!=\"\", cluster_name=~\"$cluster\"},\"namespace\",\"system.slice\"),\"namespace\",\"$1\",\"container_id\",\"\\\\/.+?\\\\/(.+?)\\\\/.*\"),\"service\",\"$1\",\"container_id\",\".*\\\\/(.+?)$\")))",
         "includeAll": true,
         "name": "namespace",
         "options": [],
         "query": {
           "qryType": 3,
-          "query": "query_result(group by (container_id,namespace,service) (label_replace(label_replace(label_set(container_restarts_total{container_id!=\"\"},\"namespace\",\"system.slice\"),\"namespace\",\"$1\",\"container_id\",\"\\\\/.+?\\\\/(.+?)\\\\/.*\"),\"service\",\"$1\",\"container_id\",\".*\\\\/(.+?)$\")))",
+          "query": "query_result(group by (container_id,namespace,service) (label_replace(label_replace(label_set(container_restarts_total{container_id!=\"\", cluster_name=~\"$cluster\"},\"namespace\",\"system.slice\"),\"namespace\",\"$1\",\"container_id\",\"\\\\/.+?\\\\/(.+?)\\\\/.*\"),\"service\",\"$1\",\"container_id\",\".*\\\\/(.+?)$\")))",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -1029,16 +1022,16 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${Datasource}"
+          "uid": "${DS_VICTORIA-CROC-COMP.GOODS.LOCAL}"
         },
-        "definition": "query_result(group by (container_id) (container_restarts_total{container_id=~\".+?${namespace}.+?$\"}))",
+        "definition": "query_result(group by (container_id) (container_restarts_total{container_id=~\".+?${namespace}.+?$\", cluster_name=~\"$cluster\"}))",
         "includeAll": true,
         "multi": true,
         "name": "service",
         "options": [],
         "query": {
           "qryType": 3,
-          "query": "query_result(group by (container_id) (container_restarts_total{container_id=~\".+?${namespace}.+?$\"}))",
+          "query": "query_result(group by (container_id) (container_restarts_total{container_id=~\".+?${namespace}.+?$\", cluster_name=~\"$cluster\"}))",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -1055,6 +1048,6 @@
   "timezone": "",
   "title": "Coroot overview",
   "uid": "fbf5b9d8-b564-4636-86c8-8da5f2ef8bba",
-  "version": 55,
+  "version": 61,
   "weekStart": ""
 }
