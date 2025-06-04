@@ -1,31 +1,56 @@
 # coroot-grafana-dashboards
-coroot-grafana-dashboards
-1. Create VMrule based on .yaml file (or prometheus recording rule)
-2. Import dashbords to your grafana and integrate it with your prometheus datasource
-3. Use!
-   
-[https://www.youtube.com/watch?v=dQw4w9WgXcQ](https://www.youtube.com/watch?v=e5C6f9aSWSM)
 
-# Requirements:
-1. Coroot node agents (just it, without UI, Clickhouse, etc.) https://github.com/coroot/coroot
-2. Prometheus or analog (VictoriaMetrics in my case) 
-3. RecordingRules functionality https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/
-4. Grafana
-5. Eyes, hands and love to observability.
-6. Also I use typical container metrics from kube-state-metrics or cadvisor in my boards, but you can use it without it.
+![License](https://img.shields.io/github/license/kirillyu/coroot-grafana-dashboards)
+![Release](https://img.shields.io/github/v/release/kirillyu/coroot-grafana-dashboards?include_prereleases)
+![Stars](https://img.shields.io/github/stars/kirillyu/coroot-grafana-dashboards?style=social)
 
-# Current features:
-1. Base drilldown from overall view to namespace/service board.
-2. All tcp metrics and connections with fqdn and directions
-3. HTTP metrics also added
-4. Postgres and Kafka in beta testing
-5. Also add throttling for better RCA
+A collection of Grafana dashboards based on Coroot node agents and Prometheus-compatible data sources.  
+Focus on observability with simple deployment — no UI, no ClickHouse, only metrics.
 
+---
 
-# Roadmap:
-1. Add errors on conntions everywhere
-2. Redis and other statefulls
-3. Insatnce (Nodes) based graphs
-4. Statefuls in graph
-5. Error timeline fixes
-6. PSI metrics integration
+## How to start
+
+1. Create **VMRule** based on the `VMRule.yaml` (or use as Prometheus recording rules).
+2. Import the dashboards into your Grafana.
+3. Set up your Prometheus (or VictoriaMetrics) as the data source.
+4. Use and enjoy.
+
+👉 [Demo (YouTube)](https://www.youtube.com/watch?v=e5C6f9aSWSM)
+
+---
+
+## Requirements
+
+1. [Coroot Node Agents](https://github.com/coroot/coroot) (no UI, no ClickHouse, only node agents).
+2. Prometheus or any compatible system (VictoriaMetrics recommended).
+3. Recording rules support ([documentation](https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/)).
+4. Grafana.
+5. Eyes, hands, and care for observability.
+6. Optionally: kube-state-metrics and cAdvisor for extended container metrics.
+
+---
+
+## Current features
+
+- Drilldown: from an overview to namespace/service level.
+- TCP metrics and full connection details including FQDN and traffic direction.
+- HTTP metrics: errors, latencies, and traffic.
+- Postgres and Kafka metrics (beta).
+- CPU throttling metrics for better root cause analysis (RCA).
+- IN/OUT separation: errors and latencies by traffic direction.
+
+---
+
+## Roadmap
+
+- [x] Add error metrics for TCP connections.
+- [x] Redis and other stateful workloads.
+- [ ] Instance/node-level dashboards.
+- [x] Visual graph support for stateful workloads.
+- [ ] Error timeline improvements.
+- [ ] PSI (Pressure Stall Information) metrics integration.
+
+---
+
+> Minimalistic setup: only agents and metrics. No ClickHouse. No heavy backend.
