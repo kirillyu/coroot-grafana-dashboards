@@ -1,0 +1,2428 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_VICTORIA-P01-PRODUCTION",
+      "label": "Victoria-p01-production",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.4.6"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 10,
+      "panels": [],
+      "title": "In-Cluster Connections",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 3,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.4.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(\n  label_replace(\n    label_replace(\n      label_replace(\n        container_net_tcp_successful_connects_total{cluster_name=~\"$cluster\", container_id=~\"/k8s/${source_namespace}/.*\"},\n        \"source_container\", \"$4\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n      ),\n      \"source_pod\", \"$3\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n    ),\n    \"source_namespace\", \"$2\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n  ),\n  \"source_controller\", \"$1\", \"source_pod\", \"(.+?)(-[^-]+)?$\"\n)\n* on (actual_destination, cluster_name) group_left(\n    destination_namespace,\n    destination_pod,\n    destination_container,\n    destination_ip,\n    destination_port,\n    destination_controller\n) (\n  label_replace(\n    label_replace(\n      label_replace(\n          label_replace(\n              label_replace(\n                  label_replace(\n                      label_replace(\n                          container_net_tcp_listen_info{cluster_name=~\"$cluster\", container_id=~\"/k8s/${destination_namespace}/.*\"},\n                          \"actual_destination\", \"$1\", \"listen_addr\", \"(.*)\"\n                      ),\n                      \"destination_namespace\", \"$2\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n                  ),\n                  \"destination_pod\", \"$3\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n              ),\n              \"destination_container\", \"$4\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n          ),\n          \"destination_ip\", \"$1\", \"actual_destination\", \"([^:]+):.*\"\n      ),\n      \"destination_port\", \"$1\", \"actual_destination\", \"[^:]+:([0-9]+)\"\n    ),\n  \"destination_controller\", \"$1\", \"destination_pod\", \"(.+?)(-[^-]+)?$\"\n  )\n)",
+          "format": "table",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "In-Cluster Connections",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "actual_destination": true,
+              "cluster_name": true,
+              "container": true,
+              "container_id": true,
+              "dc": true,
+              "destination": true,
+              "destination_pod": true,
+              "endpoint": true,
+              "env": true,
+              "instance": true,
+              "job": true,
+              "machine_id": true,
+              "namespace": true,
+              "pod": true,
+              "prometheus": true,
+              "source_pod": true,
+              "system_uuid": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time": 15,
+              "Value": 26,
+              "__name__": 27,
+              "actual_destination": 10,
+              "cluster_name": 16,
+              "container": 17,
+              "container_id": 12,
+              "dc": 18,
+              "destination": 11,
+              "destination_container": 9,
+              "destination_controller": 8,
+              "destination_ip": 4,
+              "destination_namespace": 6,
+              "destination_pod": 7,
+              "destination_port": 5,
+              "endpoint": 13,
+              "env": 19,
+              "instance": 14,
+              "job": 20,
+              "machine_id": 21,
+              "namespace": 22,
+              "pod": 23,
+              "prometheus": 24,
+              "source_container": 3,
+              "source_controller": 1,
+              "source_namespace": 0,
+              "source_pod": 2,
+              "system_uuid": 25
+            },
+            "renameByName": {
+              "actual_destination": "",
+              "container_id": "",
+              "destination": "",
+              "destination_container": "Destination Container",
+              "destination_controller": "Destination Controller",
+              "destination_ip": "Destination IP",
+              "destination_namespace": "Destination Namespace",
+              "destination_pod": "Destination Pod",
+              "destination_port": "Destination Port",
+              "endpoint": "",
+              "instance": "",
+              "source_container": "Source Container",
+              "source_controller": "Source Controller",
+              "source_namespace": "Source Namespace",
+              "source_pod": "",
+              "source_type": "Source Type"
+            }
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Actual Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Controller": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination IP": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Port": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Endpoint": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Instance": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Controller": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source ID": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Type": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "number",
+                "targetField": "Destination Port"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 19,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.4.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(\n  label_replace(\n    label_replace(\n      label_replace(\n        container_net_tcp_successful_connects_total{cluster_name=~\"$cluster\", container_id=~\"/k8s/${source_namespace}/.*\"},\n        \"source_container\", \"$4\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n      ),\n      \"source_pod\", \"$3\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n    ),\n    \"source_namespace\", \"$2\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n  ),\n  \"source_controller\", \"$1\", \"source_pod\", \"(.+?)(-[^-]+)?$\"\n)\n* on (actual_destination, cluster_name) group_left(\n    destination_namespace,\n    destination_pod,\n    destination_container,\n    destination_ip,\n    destination_port,\n    destination_controller\n) (\n  label_replace(\n    label_replace(\n      label_replace(\n          label_replace(\n              label_replace(\n                  label_replace(\n                      label_replace(\n                          container_net_tcp_listen_info{cluster_name=~\"$cluster\", container_id=~\"/k8s/${destination_namespace}/.*\"},\n                          \"actual_destination\", \"$1\", \"listen_addr\", \"(.*)\"\n                      ),\n                      \"destination_namespace\", \"$2\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n                  ),\n                  \"destination_pod\", \"$3\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n              ),\n              \"destination_container\", \"$4\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n          ),\n          \"destination_ip\", \"$1\", \"actual_destination\", \"([^:]+):.*\"\n      ),\n      \"destination_port\", \"$1\", \"actual_destination\", \"[^:]+:([0-9]+)\"\n    ),\n  \"destination_controller\", \"$1\", \"destination_pod\", \"(.+?)(-[^-]+)?$\"\n  )\n)",
+          "format": "table",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "In-Cluster Connections (NS to NS)",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "actual_destination": true,
+              "cluster_name": true,
+              "container": true,
+              "container_id": true,
+              "dc": true,
+              "destination": true,
+              "destination_container": true,
+              "destination_controller": true,
+              "destination_ip": true,
+              "destination_pod": true,
+              "endpoint": true,
+              "env": true,
+              "for_filter": false,
+              "instance": true,
+              "job": true,
+              "machine_id": true,
+              "namespace": true,
+              "pod": true,
+              "prometheus": true,
+              "source_container": true,
+              "source_controller": true,
+              "source_pod": true,
+              "system_uuid": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time": 15,
+              "Value": 26,
+              "__name__": 27,
+              "actual_destination": 10,
+              "cluster_name": 16,
+              "container": 17,
+              "container_id": 12,
+              "dc": 18,
+              "destination": 11,
+              "destination_container": 9,
+              "destination_controller": 8,
+              "destination_ip": 4,
+              "destination_namespace": 6,
+              "destination_pod": 7,
+              "destination_port": 5,
+              "endpoint": 13,
+              "env": 19,
+              "instance": 14,
+              "job": 20,
+              "machine_id": 21,
+              "namespace": 22,
+              "pod": 23,
+              "prometheus": 24,
+              "source_container": 3,
+              "source_controller": 1,
+              "source_namespace": 0,
+              "source_pod": 2,
+              "system_uuid": 25
+            },
+            "renameByName": {
+              "actual_destination": "",
+              "container_id": "",
+              "destination": "",
+              "destination_container": "Destination Container",
+              "destination_controller": "Destination Controller",
+              "destination_ip": "Destination IP",
+              "destination_namespace": "Destination Namespace",
+              "destination_pod": "Destination Pod",
+              "destination_port": "Destination Port",
+              "endpoint": "",
+              "instance": "",
+              "source_container": "Source Container",
+              "source_controller": "Source Controller",
+              "source_namespace": "Source Namespace",
+              "source_pod": "",
+              "source_type": "Source Type"
+            }
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Actual Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Controller": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination IP": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Port": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Endpoint": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Instance": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Controller": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source ID": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Type": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "for_filter": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "number",
+                "targetField": "Destination Port"
+              }
+            ],
+            "fields": {}
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "for_filter",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "source_namespace"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "destination_namespace"
+                }
+              }
+            },
+            "mode": "reduceRow",
+            "reduce": {
+              "include": [
+                "Destination Namespace",
+                "Source Namespace"
+              ],
+              "reducer": "allValues"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "filters": [
+              {
+                "config": {
+                  "id": "regex",
+                  "options": {
+                    "value": "^([^,]+),\\s*\\1$"
+                  }
+                },
+                "fieldName": "for_filter"
+              }
+            ],
+            "match": "all",
+            "type": "exclude"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "for_filter": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 13,
+      "panels": [],
+      "title": "Outgoing Connections",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false,
+            "minWidth": 50
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Destination Port"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 9,
+        "x": 0,
+        "y": 24
+      },
+      "id": 7,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.4.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+          },
+          "editorMode": "code",
+          "expr": "group by (cluster_name, source_namespace, source_pod, source_container, source_controller, destination_ip, destination_port) (\n  label_replace(\n    label_replace(\n      label_replace(\n        label_replace(\n          label_replace(\n            label_replace(\n            container_net_tcp_successful_connects_total{\n                cluster_name=~\"$cluster\", container_id=~\"/k8s/${source_namespace}/.*\",\n            },\n            \"destination_ip\", \"$1\", \"actual_destination\", \"([^:]+):.*\"\n            ),\n            \"destination_port\", \"$1\", \"actual_destination\", \"[^:]+:([0-9]+)\"\n          ),\n          \"source_container\", \"$4\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n        ),\n        \"source_pod\", \"$3\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n      ),\n      \"source_namespace\", \"$2\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n    ),\n    \"source_controller\", \"$1\", \"source_pod\", \"(.+?)(-[^-]+)?$\"\n  )\n)\n* on (destination_ip, cluster_name) group_left(fqdn) (\n  group by (cluster_name, destination_ip, fqdn) (\n    label_replace(\n        topk(1, ip_to_fqdn{cluster_name=~\"$cluster\"}) by (ip),\n        \"destination_ip\", \"$1\", \"ip\", \"(.*)\"\n    )\n  )\n)",
+          "format": "table",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Outgoing Connections (by NS)",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "actual_destination": true,
+              "cluster_name": true,
+              "container": true,
+              "container_id": true,
+              "dc": true,
+              "destination": true,
+              "destination_ip": true,
+              "endpoint": true,
+              "env": true,
+              "instance": true,
+              "job": true,
+              "machine_id": true,
+              "namespace": true,
+              "pod": true,
+              "prometheus": true,
+              "source_container": true,
+              "source_controller": true,
+              "source_pod": true,
+              "system_uuid": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time": 7,
+              "Value": 9,
+              "__name__": 10,
+              "cluster_name": 8,
+              "destination_ip": 3,
+              "destination_port": 4,
+              "fqdn": 5,
+              "source_container": 2,
+              "source_controller": 1,
+              "source_namespace": 0,
+              "source_pod": 6
+            },
+            "renameByName": {
+              "actual_destination": "",
+              "container_id": "",
+              "destination": "",
+              "destination_container": "Destination Container",
+              "destination_ip": "Destination IP",
+              "destination_namespace": "Destination Namespace",
+              "destination_pod": "Destination Pod",
+              "destination_port": "Destination Port",
+              "endpoint": "",
+              "fqdn": "FQDN",
+              "instance": "",
+              "source_container": "Source Container",
+              "source_controller": "Source Controller",
+              "source_namespace": "Source Namespace",
+              "source_pod": "",
+              "source_type": "Source Type"
+            }
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Actual Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination IP": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Port": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Endpoint": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "FQDN": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Instance": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Controller": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source ID": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Type": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "number",
+                "targetField": "Destination Port"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "destination_port"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 9,
+        "y": 24
+      },
+      "id": 9,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.4.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+          },
+          "editorMode": "code",
+          "expr": "group by (cluster_name, source_namespace, source_pod, source_container, source_controller, destination_ip, destination_port) (\n  label_replace(\n    label_replace(\n      label_replace(\n        label_replace(\n          label_replace(\n            label_replace(\n            container_net_tcp_successful_connects_total{\n                cluster_name=~\"$cluster\", container_id=~\"/k8s/${source_namespace}/.*\",\n            },\n            \"destination_ip\", \"$1\", \"actual_destination\", \"([^:]+):.*\"\n            ),\n            \"destination_port\", \"$1\", \"actual_destination\", \"[^:]+:([0-9]+)\"\n          ),\n          \"source_container\", \"$4\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n        ),\n        \"source_pod\", \"$3\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n      ),\n      \"source_namespace\", \"$2\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n    ),\n    \"source_controller\", \"$1\", \"source_pod\", \"(.+?)(-[^-]+)?$\"\n  )\n)\n* on (destination_ip, cluster_name) group_left(fqdn) (\n  group by (cluster_name, destination_ip, fqdn) (\n    label_replace(\n        topk(1, ip_to_fqdn{cluster_name=~\"$cluster\", fqdn!~\"$negative_regex\"}) by (ip),\n        \"destination_ip\", \"$1\", \"ip\", \"(.*)\"\n    )\n  )\n)",
+          "format": "table",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Outgoing Connections (by NS, external FQDN)",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "actual_destination": true,
+              "cluster_name": true,
+              "container": true,
+              "container_id": true,
+              "dc": true,
+              "destination": true,
+              "destination_ip": true,
+              "endpoint": true,
+              "env": true,
+              "instance": true,
+              "job": true,
+              "machine_id": true,
+              "namespace": true,
+              "pod": true,
+              "prometheus": true,
+              "source_container": true,
+              "source_controller": true,
+              "source_pod": true,
+              "system_uuid": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time": 7,
+              "Value": 9,
+              "__name__": 10,
+              "cluster_name": 8,
+              "destination_ip": 3,
+              "destination_port": 4,
+              "fqdn": 5,
+              "source_container": 2,
+              "source_controller": 1,
+              "source_namespace": 0,
+              "source_pod": 6
+            },
+            "renameByName": {
+              "actual_destination": "",
+              "container_id": "",
+              "destination": "",
+              "destination_container": "Destination Container",
+              "destination_ip": "Destination IP",
+              "destination_namespace": "Destination Namespace",
+              "destination_pod": "Destination Pod",
+              "destination_port": "Destination Port",
+              "endpoint": "",
+              "fqdn": "FQDN",
+              "instance": "",
+              "source_container": "Source Container",
+              "source_controller": "Source Controller",
+              "source_namespace": "Source Namespace",
+              "source_pod": "",
+              "source_type": "Source Type"
+            }
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Actual Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination IP": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Port": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Endpoint": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "FQDN": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Instance": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Controller": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source ID": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Type": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 7,
+        "x": 17,
+        "y": 24
+      },
+      "id": 14,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "11.4.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(\n  label_replace(\n    group by (cluster_name, source_namespace, source_pod, source_container, source_controller, destination_ip, destination_port) (\n  label_replace(\n    label_replace(\n      label_replace(\n        label_replace(\n          label_replace(\n            label_replace(\n            container_net_tcp_successful_connects_total{\n                cluster_name=~\"$cluster\", container_id=~\"/k8s/${source_namespace}/.*\",\n            },\n            \"destination_ip\", \"$1\", \"actual_destination\", \"([^:]+):.*\"\n            ),\n            \"destination_port\", \"$1\", \"actual_destination\", \"[^:]+:([0-9]+)\"\n          ),\n          \"source_container\", \"$4\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n        ),\n        \"source_pod\", \"$3\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n      ),\n      \"source_namespace\", \"$2\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n    ),\n    \"source_controller\", \"$1\", \"source_pod\", \"(.+?)(-[^-]+)?$\"\n  )\n)\n* on (destination_ip, cluster_name) group_left(fqdn) (\n  group by (cluster_name, destination_ip, fqdn) (\n    label_replace(\n        topk(1, ip_to_fqdn{cluster_name=~\"$cluster\", fqdn!~\"$negative_regex\"}) by (ip),\n        \"destination_ip\", \"$1\", \"ip\", \"(.*)\"\n    )\n  )\n),\n    \"domain\", \"$2$3\", \"fqdn\", \"(.*\\\\.)?([^.]+\\\\.)([^.]+)$\"\n  ),\n  \"subdomain\", \"$1\", \"fqdn\", \"(.*)\\\\.([^.]+\\\\.)([^.]+)$\"\n)",
+          "format": "table",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Uniq external FQDN",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "actual_destination": true,
+              "cluster_name": true,
+              "container": true,
+              "container_id": true,
+              "dc": true,
+              "destination": true,
+              "destination_ip": true,
+              "destination_port": true,
+              "endpoint": true,
+              "env": true,
+              "fqdn": true,
+              "instance": true,
+              "job": true,
+              "machine_id": true,
+              "namespace": true,
+              "pod": true,
+              "prometheus": true,
+              "source_container": true,
+              "source_controller": true,
+              "source_namespace": true,
+              "source_pod": true,
+              "system_uuid": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time": 9,
+              "Value": 11,
+              "__name__": 12,
+              "cluster_name": 10,
+              "destination_ip": 6,
+              "destination_port": 7,
+              "domain": 1,
+              "fqdn": 2,
+              "source_container": 5,
+              "source_controller": 4,
+              "source_namespace": 3,
+              "source_pod": 8,
+              "subdomain": 0
+            },
+            "renameByName": {
+              "actual_destination": "",
+              "container_id": "",
+              "destination": "",
+              "destination_container": "Destination Container",
+              "destination_ip": "Destination IP",
+              "destination_namespace": "Destination Namespace",
+              "destination_pod": "Destination Pod",
+              "destination_port": "Destination Port",
+              "domain": "Domain",
+              "endpoint": "",
+              "fqdn": "FQDN",
+              "instance": "",
+              "source_container": "Source Container",
+              "source_controller": "Source Controller",
+              "source_namespace": "Source Namespace",
+              "source_pod": "",
+              "source_type": "Source Type",
+              "subdomain": "Subdomain"
+            }
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Actual Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination IP": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Port": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Domain": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Endpoint": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "FQDN": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Instance": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Controller": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source ID": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Type": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Subdomain": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "fqdn": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "Domain"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "id": 5,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.4.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+          },
+          "editorMode": "code",
+          "expr": "group by (cluster_name, source_namespace, source_pod, source_container, source_controller, destination_ip, destination_port) (\n  label_replace(\n    label_replace(\n      label_replace(\n        label_replace(\n          label_replace(\n            label_replace(\n            container_net_tcp_successful_connects_total{\n                cluster_name=~\"$cluster\", container_id=~\"/k8s/${source_namespace}/.*\",\n            },\n            \"destination_ip\", \"$1\", \"actual_destination\", \"([^:]+):.*\"\n            ),\n            \"destination_port\", \"$1\", \"actual_destination\", \"[^:]+:([0-9]+)\"\n          ),\n          \"source_container\", \"$4\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n        ),\n        \"source_pod\", \"$3\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n      ),\n      \"source_namespace\", \"$2\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n    ),\n    \"source_controller\", \"$1\", \"source_pod\", \"(.+?)(-[^-]+)?$\"\n  )\n)\n* on (destination_ip, cluster_name) group_left(fqdn) (\n  group by (cluster_name, destination_ip, fqdn) (\n    label_replace(\n        topk(1, ip_to_fqdn{cluster_name=~\"$cluster\"}) by (ip),\n        \"destination_ip\", \"$1\", \"ip\", \"(.*)\"\n    )\n  )\n)",
+          "format": "table",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Outgoing Connections",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "actual_destination": true,
+              "cluster_name": true,
+              "container": true,
+              "container_id": true,
+              "dc": true,
+              "destination": true,
+              "endpoint": true,
+              "env": true,
+              "instance": true,
+              "job": true,
+              "machine_id": true,
+              "namespace": true,
+              "pod": true,
+              "prometheus": true,
+              "source_pod": true,
+              "system_uuid": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time": 7,
+              "Value": 9,
+              "__name__": 10,
+              "cluster_name": 8,
+              "destination_ip": 3,
+              "destination_port": 4,
+              "fqdn": 5,
+              "source_container": 2,
+              "source_controller": 1,
+              "source_namespace": 0,
+              "source_pod": 6
+            },
+            "renameByName": {
+              "actual_destination": "",
+              "container_id": "",
+              "destination": "",
+              "destination_container": "Destination Container",
+              "destination_ip": "Destination IP",
+              "destination_namespace": "Destination Namespace",
+              "destination_pod": "Destination Pod",
+              "destination_port": "Destination Port",
+              "endpoint": "",
+              "fqdn": "FQDN",
+              "instance": "",
+              "source_container": "Source Container",
+              "source_controller": "Source Controller",
+              "source_namespace": "Source Namespace",
+              "source_pod": "",
+              "source_type": "Source Type"
+            }
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Actual Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination IP": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination Port": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Endpoint": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "FQDN": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Instance": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Controller": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source ID": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Type": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "number",
+                "targetField": "Destination Port"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 45
+      },
+      "id": 15,
+      "panels": [],
+      "title": "Listen Info",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 46
+      },
+      "id": 2,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.4.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(\n  label_replace(\n    label_replace(\n      label_replace(\n        label_replace(\n          container_net_tcp_listen_info{cluster_name=~\"$cluster\", container_id=~\"/k8s/${source_namespace}/.*\"},\n          \"source_container\", \"$4\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n        ),\n        \"source_pod\", \"$3\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n      ),\n      \"source_namespace\", \"$2\", \"container_id\", \"/([^/]+)/([^/]+)/([^/]+)/([^/]+)\"\n    ),\n    \"ip\", \"$1\", \"listen_addr\", \"([^:]+):.*\"\n  ),\n  \"port\", \"$1\", \"listen_addr\", \"[^:]+:([0-9]+)\"\n)",
+          "format": "table",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Listen Info - coroot",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "cluster_name": true,
+              "container": true,
+              "container_id": false,
+              "dc": true,
+              "endpoint": true,
+              "env": true,
+              "instance": true,
+              "job": true,
+              "listen_addr": true,
+              "machine_id": true,
+              "namespace": true,
+              "pod": true,
+              "prometheus": true,
+              "system_uuid": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time": 9,
+              "Value": 21,
+              "__name__": 10,
+              "cluster_name": 11,
+              "container": 12,
+              "container_id": 0,
+              "dc": 13,
+              "endpoint": 7,
+              "env": 14,
+              "instance": 8,
+              "ip": 4,
+              "job": 15,
+              "listen_addr": 6,
+              "machine_id": 16,
+              "namespace": 17,
+              "pod": 18,
+              "port": 5,
+              "prometheus": 19,
+              "source_container": 3,
+              "source_namespace": 1,
+              "source_pod": 2,
+              "system_uuid": 20
+            },
+            "renameByName": {
+              "actual_destination": "Actual Destination",
+              "container_id": "Source ID",
+              "destination": "Destination",
+              "endpoint": "",
+              "instance": "",
+              "ip": "IP",
+              "listen_addr": "",
+              "port": "Port",
+              "source_container": "Source Container",
+              "source_namespace": "Source Namespace",
+              "source_pod": "Source Pod",
+              "source_type": "Source Type"
+            }
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Actual Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Endpoint": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "IP": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Instance": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Listen Address": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Port": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source ID": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Type": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 57
+      },
+      "id": 8,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.4.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+          },
+          "editorMode": "code",
+          "expr": "kube_endpoint_address{cluster_name=~\"$cluster\", namespace=~\"$source_namespace\"}",
+          "format": "table",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Endpoint Info",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "cluster_name": true,
+              "container": true,
+              "dc": true,
+              "env": true,
+              "instance": true,
+              "ip": true,
+              "job": true,
+              "pod": true,
+              "prometheus": true,
+              "ready": true,
+              "service": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time": 5,
+              "Value": 16,
+              "__name__": 6,
+              "cluster_name": 7,
+              "container": 8,
+              "dc": 9,
+              "endpoint": 1,
+              "env": 10,
+              "instance": 11,
+              "job": 12,
+              "namespace": 0,
+              "pod": 13,
+              "port_name": 2,
+              "port_number": 3,
+              "port_protocol": 4,
+              "prometheus": 14,
+              "service": 15
+            },
+            "renameByName": {
+              "endpoint": "Endpoint",
+              "namespace": "Namespace",
+              "port_name": "Port Name",
+              "port_number": "Port",
+              "port_protocol": "Protocol"
+            }
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Endpoint": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Port": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Port Name": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Protocol": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 67
+      },
+      "id": 16,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.4.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(\n  label_replace(\n          container_net_tcp_listen_info{cluster_name=~\"$cluster\", container_id=~\"/system.slice/.*\", listen_addr=~\"(\\\\d{1,3}\\\\.){3}\\\\d{1,3}:\\\\d+\"},\n    \"ip\", \"$1\", \"listen_addr\", \"([^:]+):.*\"\n  ),\n  \"port\", \"$1\", \"listen_addr\", \"[^:]+:([0-9]+)\"\n)",
+          "format": "table",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Listen Info - System Services",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "cluster_name": true,
+              "container": true,
+              "container_id": false,
+              "dc": true,
+              "endpoint": true,
+              "env": true,
+              "instance": true,
+              "job": true,
+              "listen_addr": true,
+              "machine_id": true,
+              "namespace": true,
+              "pod": true,
+              "prometheus": true,
+              "system_uuid": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time": 9,
+              "Value": 21,
+              "__name__": 10,
+              "cluster_name": 11,
+              "container": 12,
+              "container_id": 0,
+              "dc": 13,
+              "endpoint": 7,
+              "env": 14,
+              "instance": 8,
+              "ip": 4,
+              "job": 15,
+              "listen_addr": 6,
+              "machine_id": 16,
+              "namespace": 17,
+              "pod": 18,
+              "port": 5,
+              "prometheus": 19,
+              "source_container": 3,
+              "source_namespace": 1,
+              "source_pod": 2,
+              "system_uuid": 20
+            },
+            "renameByName": {
+              "actual_destination": "Actual Destination",
+              "container_id": "Source ID",
+              "destination": "Destination",
+              "endpoint": "",
+              "instance": "",
+              "ip": "IP",
+              "listen_addr": "Listen Addr",
+              "port": "Port",
+              "source_container": "Source Container",
+              "source_namespace": "Source Namespace",
+              "source_pod": "Source Pod",
+              "source_type": "Source Type"
+            }
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Actual Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Endpoint": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "IP": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Instance": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Listen Addr": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Listen Address": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Port": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source ID": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Type": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 78
+      },
+      "id": 11,
+      "panels": [],
+      "title": "Coroot Info",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 79
+      },
+      "id": 6,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.4.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(\n  label_replace(\n    label_replace(\n      label_replace(\n              container_net_tcp_successful_connects_total{\n                cluster_name=~\"$cluster\", container_id=~\"/system.slice/.*\"\n              },\n        \"actual_ip\", \"$1\", \"actual_destination\", \"([^:]+):.*\"\n      ),\n      \"actual_port\", \"$1\", \"actual_destination\", \"[^:]+:([0-9]+)\"\n    ),\n    \"ip\", \"$1\", \"destination\", \"([^:]+):.*\"\n  ),\n  \"port\", \"$1\", \"destination\", \"[^:]+:([0-9]+)\"\n)",
+          "format": "table",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "System Services Success Connections",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "actual_destination": true,
+              "cluster_name": true,
+              "container": true,
+              "container_id": false,
+              "dc": true,
+              "destination": true,
+              "endpoint": true,
+              "env": true,
+              "instance": true,
+              "job": true,
+              "machine_id": true,
+              "namespace": true,
+              "pod": true,
+              "prometheus": true,
+              "system_uuid": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time": 12,
+              "Value": 24,
+              "__name__": 13,
+              "actual_destination": 8,
+              "actual_ip": 4,
+              "actual_port": 5,
+              "cluster_name": 14,
+              "container": 15,
+              "container_id": 0,
+              "dc": 16,
+              "destination": 9,
+              "endpoint": 10,
+              "env": 17,
+              "instance": 11,
+              "ip": 6,
+              "job": 18,
+              "machine_id": 19,
+              "namespace": 20,
+              "pod": 21,
+              "port": 7,
+              "prometheus": 22,
+              "source_container": 3,
+              "source_namespace": 1,
+              "source_pod": 2,
+              "system_uuid": 23
+            },
+            "renameByName": {
+              "actual_destination": "",
+              "actual_ip": "Actual IP",
+              "actual_port": "Actual Port",
+              "container_id": "Source ID",
+              "destination": "",
+              "endpoint": "",
+              "instance": "",
+              "ip": "IP",
+              "listen_addr": "Listen Address",
+              "port": "Port",
+              "source_container": "Source Container",
+              "source_namespace": "Source Namespace",
+              "source_pod": "Source Pod",
+              "source_type": "Source Type"
+            }
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Actual Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Actual IP": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Actual Port": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Destination": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Endpoint": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "IP": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Instance": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Listen Address": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Port": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Container": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source ID": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Pod": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Source Type": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 40,
+  "tags": [
+    "security",
+    "network",
+    "kubernetes"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      },
+      {
+        "allValue": ".*",
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(kube_node_info,cluster_name)",
+        "includeAll": false,
+        "name": "cluster",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(kube_node_info,cluster_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+        },
+        "definition": "label_values(kube_pod_info{cluster_name=\"$cluster\"},namespace)",
+        "includeAll": true,
+        "multi": true,
+        "name": "source_namespace",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(kube_pod_info{cluster_name=\"$cluster\"},namespace)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(kube_pod_info{cluster_name=\"$cluster\"},namespace)",
+        "includeAll": true,
+        "multi": true,
+        "name": "destination_namespace",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(kube_pod_info{cluster_name=\"$cluster\"},namespace)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "description": "",
+        "name": "negative_regex",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "2025-06-23T07:08:34.051Z",
+    "to": "2025-06-23T07:09:34.051Z"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "FQDN Outgoing Connections (Coroot)",
+  "uid": "fqnds",
+  "version": 7,
+  "weekStart": ""
+}
