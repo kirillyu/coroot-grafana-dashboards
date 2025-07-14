@@ -3920,15 +3920,16 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_VICTORIA-P01-PRODUCTION}"
+          "uid": "${DS_VICTORIAMETRICS}"
         },
-        "definition": "query_result((  group by (__name__, technology) (    label_replace(      label_replace(        {          __name__!~\"container_(dns|http|log).+_total\",          __name__=~\"container.+_(queries|requests|messages)_total\",          container_id=~\"/k8s/$namespace/.+\" or container_id=~\"/$namespace/.+\",cluster_name=~\"$cluster\"},        \"real_namespace\", \"$1\", \"container_id\", \"/k8s/([^/]+)/\"      ),      \"technology\", \"$1\", \"__name__\", \"container_(.+?)_(?:queries|requests|messages)_total\"    ) > 0  )))",
+        "definition": "query_result((  group by (__name__, technology) (    label_replace(      label_replace(        {          __name__!~\"container_(dns|http|log).+_total\",          __name__=~\"container.+_(queries|requests|messages)_total\",          container_id=~\"/k8s/$namespace/.+|/$namespace/.+\",          cluster_name=~\"$cluster\"        },        \"real_namespace\", \"$1\", \"container_id\", \"/k8s/([^/]+)/\"      ),      \"technology\", \"$1\", \"__name__\", \"container_(.+?)_(?:queries|requests|messages)_total\"    ) > 0  )))",
         "includeAll": true,
+        "multi": false,
         "name": "technology",
         "options": [],
         "query": {
           "qryType": 3,
-          "query": "query_result((  group by (__name__, technology) (    label_replace(      label_replace(        {          __name__!~\"container_(dns|http|log).+_total\",          __name__=~\"container.+_(queries|requests|messages)_total\",          container_id=~\"/k8s/$namespace/.+\" or container_id=~\"/$namespace/.+\",cluster_name=~\"$cluster\"},        \"real_namespace\", \"$1\", \"container_id\", \"/k8s/([^/]+)/\"      ),      \"technology\", \"$1\", \"__name__\", \"container_(.+?)_(?:queries|requests|messages)_total\"    ) > 0  )))",
+          "query": "query_result((  group by (__name__, technology) (    label_replace(      label_replace(        {          __name__!~\"container_(dns|http|log).+_total\",          __name__=~\"container.+_(queries|requests|messages)_total\",          container_id=~\"/k8s/$namespace/.+|/$namespace/.+\",          cluster_name=~\"$cluster\"        },        \"real_namespace\", \"$1\", \"container_id\", \"/k8s/([^/]+)/\"      ),      \"technology\", \"$1\", \"__name__\", \"container_(.+?)_(?:queries|requests|messages)_total\"    ) > 0  )))",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
